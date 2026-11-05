@@ -1,0 +1,61 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Pre-install Android NDK & Accept Licenses
+        run: |
+          mkdir -p $ANDROID_HOME/licenses/
+          echo "89337d125679aa4f72802e1e0e80dd01f0192878" > $ANDROID_HOME/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_HOME/licenses/android-sdk-license
+          echo "24333f8a63b68b49e100c36dbf2752721055097c" >> $ANDROID_HOME/licenses/android-sdk-license
+          echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_HOME/licenses/android-sdk-preview-license
+          echo "790774e16868e6e6265292302e6e6a5f36e87a2d" > $ANDROID_HOME/licenses/android-sdk-arm-dbt-license
+          echo "601085b94cd77f0b54ff864069570991500085d7" > $ANDROID_HOME/licenses/android-googletv-license
+          echo "33b6a2b64607f11b759f320493379f73e991d01a" > $ANDROID_HOME/licenses/google-gdk-license
+          echo "e9acab5b5fbb560a72720eedac042efce5375121" > $ANDROID_HOME/licenses/mips-android-sysimage-license
+          
+          # Accept all licenses via sdkmanager non-interactively
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          
+          # Install the exact NDK version required by React Native / Expo
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;27.1.12297006" || true
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Prebuild Android project
+        run: npx expo prebuild --platform android --clean --non-interactive
+
+      - name: Make Gradle executable
+        run: chmod +x android/gradlew
+
+      - name: Build Release APK
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TravioX-Release-APK
+          path: android/app/build/outputs/apk/release/*.apk

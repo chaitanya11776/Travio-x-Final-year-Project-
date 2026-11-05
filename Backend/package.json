@@ -1,0 +1,29 @@
+{
+  "name": "pp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@google/genai": "^1.41.0",
+    "@google/generative-ai": "^0.24.1",
+    "axios": "^1.13.5",
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
+    "docx": "^9.7.1",
+    "dotenv": "^17.4.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "form-data": "^4.0.5",
+    "groq-sdk": "^1.1.2",
+    "helmet": "^8.1.0",
+    "openai": "^6.22.0",
+    "serpapi": "^2.2.1"
+  }
+}
